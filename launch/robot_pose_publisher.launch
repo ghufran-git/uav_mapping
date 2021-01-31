@@ -1,0 +1,8 @@
+<launch>
+
+    <node
+        name="pose_publisher_test"
+        type="pose_publisher_test.py"
+        pkg="uav_mapping"
+        output="screen"/>
+</launch>
