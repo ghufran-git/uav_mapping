@@ -1,0 +1,18 @@
+<launch>
+    <!-- load configuration -->
+    <group ns="uav_mapping">
+        <rosparam command="load"
+            file="$(find uav_mapping)/cfg/map_config.yaml" />
+    </group>
+    <node
+        name="map_explore"
+        type="map_explore.py"
+        pkg="uav_mapping"
+        output="screen"/>
+    <node 
+        name="rviz" 
+        type="rviz" 
+        pkg="rviz" 
+        args="-d $(find uav_mapping)/rviz/map.rviz" />
+-
+</launch>
