@@ -59,7 +59,7 @@ Visualization Manager:
       Draw Behind: false
       Enabled: true
       Name: Map
-      Topic: /test/map
+      Topic: /uav0/map
       Unreliable: false
       Use Timestamp: false
       Value: true
@@ -91,7 +91,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 73.8958740234375
+      Distance: 114.60221099853516
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-""" Occupancy-grid-based mapping for a single drone. 
+""" Occupancy-grid-based mapping for drone(s). 
 
 Subscribed topics:
 /mavros/local_position/odom
@@ -29,7 +29,7 @@ class UavMapper:
         /uav_mapping/origin_y       --  Position of the y point in grid cell (lower-left pixel in the map)
         /uav_mapping/size_x         --  Number of columns in the occupancy grid.
         /uav_mapping/size_y         --  Number of rows in the occupancy grid.
-        self.grid                   --  numpy array 
+        self.grid                   --  Numpy array
         
     """
     def __init__(self):
@@ -46,8 +46,8 @@ class UavMapper:
         self.map.info.width = self.map_size_x 
         self.map.info.height = self.map_size_y
         self.robot_pose = PoseStamped()
-        self.map_pub = rospy.Publisher("test/map", OccupancyGrid, queue_size=1, latch=True)
-        self.position_sub = rospy.Subscriber("/mavros/local_position/odom", Odometry, self.callback_robot_pose , queue_size=1)
+        self.map_pub = rospy.Publisher("map", OccupancyGrid, queue_size=1, latch=True)
+        self.position_sub = rospy.Subscriber("mavros/local_position/odom", Odometry, self.callback_robot_pose , queue_size=1)
         self.camera_fov = 40 
         self.pixel = 0
         self.grid = np.ones((self.map.info.height, self.map.info.width))
@@ -61,7 +61,7 @@ class UavMapper:
         self.robot_pose.pose.position.x = (pose_recieved.pose.pose.position.x - self.map_origin_x) * 1/self.map_resolution
         self.robot_pose.pose.position.y = (pose_recieved.pose.pose.position.y - self.map_origin_y) * 1/self.map_resolution
         self.robot_pose.pose.position.z = pose_recieved.pose.pose.position.z 
-        print(self.robot_pose.pose.position.x, self.robot_pose.pose.position.y, self.robot_pose.pose.position.z)
+        # print(self.robot_pose.pose.position.x, self.robot_pose.pose.position.y, self.robot_pose.pose.position.z)
         self.mapUpdate()
 
 
@@ -87,10 +87,10 @@ class UavMapper:
         self.pixel = (2*radius)/self.map_resolution
 
 if __name__ == '__main__':
-    rospy.init_node("UavMapper", anonymous=True)
+    rospy.init_node("Mapper", anonymous=True)
     test = UavMapper()
     r = rospy.Rate(0.2)
     while not rospy.is_shutdown():
-        print("publishing...")
+        print("publishing....")
         test.publishMap()
         r.sleep()
