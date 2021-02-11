@@ -2,10 +2,10 @@
 """ Occupancy-grid-based mapping for drone(s). 
 
 Subscribed topics:
-/mavros/local_position/odom
+(namespace)/mavros/local_position/odom
 
 Published topics:
-test/map
+(namespace)/map
 
 Author: Ghufran Ullah
 Email: contact.ghufranullah@gmail.com
