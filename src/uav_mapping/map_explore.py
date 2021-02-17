@@ -34,7 +34,27 @@ class UavMapper:
     """
     def __init__(self):
         """ Construct an empty occupancy grid. Subscriber and publisher."""
+        
+        self.robot_pose = PoseStamped()
+        self.position_sub = rospy.Subscriber("mavros/local_position/odom", Odometry, self.callback_robot_pose , queue_size=1)
+        self._map = Map()
+    
+    def callback_robot_pose(self, pose_recieved):
+        """ Callback for /mavros/local_position/odom """
 
+        self.robot_pose.pose.position.x = (pose_recieved.pose.pose.position.x - self._map.map_origin_x) * 1/self._map.map_resolution
+        self.robot_pose.pose.position.y = (pose_recieved.pose.pose.position.y - self._map.map_origin_y) * 1/self._map.map_resolution
+        self.robot_pose.pose.position.z = pose_recieved.pose.pose.position.z 
+        print(self.robot_pose.pose.position.x, self.robot_pose.pose.position.y, self.robot_pose.pose.position.z)
+        if (self.robot_pose.pose.position.x <= 0 or self.robot_pose.pose.position.y <= 0 ):
+            self.robot_pose.pose.position.x = 0
+            self.robot_pose.pose.position.y = 0
+            rospy.logerr("Out of Bounds of the map")
+        self._map.mapUpdate()
+
+
+class Map:
+    def __init__(self):
         self.map_resolution = rospy.get_param("/uav_mapping/resolution")
         self.map_origin_x = rospy.get_param("/uav_mapping/origin_x")
         self.map_origin_y = rospy.get_param("/uav_mapping/origin_y")
@@ -45,29 +65,13 @@ class UavMapper:
         self.map.info.resolution = self.map_resolution
         self.map.info.width = self.map_size_x 
         self.map.info.height = self.map_size_y
-        self.robot_pose = PoseStamped()
         self.map_pub = rospy.Publisher("map", OccupancyGrid, queue_size=1, latch=True)
-        self.position_sub = rospy.Subscriber("mavros/local_position/odom", Odometry, self.callback_robot_pose , queue_size=1)
-        self.camera_fov = 40 
         self.pixel = 0
         self.grid = np.ones((self.map.info.height, self.map.info.width))
         self.grid = np.dot(self.grid , -1)
         flat_grid = self.grid.reshape((self.grid.size,))
         self.map.data = list(np.round(flat_grid))
-
-    def callback_robot_pose(self, pose_recieved):
-        """ Callback for /mavros/local_position/odom """
-
-        self.robot_pose.pose.position.x = (pose_recieved.pose.pose.position.x - self.map_origin_x) * 1/self.map_resolution
-        self.robot_pose.pose.position.y = (pose_recieved.pose.pose.position.y - self.map_origin_y) * 1/self.map_resolution
-        self.robot_pose.pose.position.z = pose_recieved.pose.pose.position.z 
-        print(self.robot_pose.pose.position.x, self.robot_pose.pose.position.y, self.robot_pose.pose.position.z)
-        if (self.robot_pose.pose.position.x <= 0 or self.robot_pose.pose.position.y <= 0 ):
-            self.robot_pose.pose.position.x = 0
-            self.robot_pose.pose.position.y = 0
-            rospy.logerr("Out of Bounds of the map")
-        self.mapUpdate()
-
+        self.camera_fov = 40 
 
     def publishMap(self):
         """ Publishes the map  """
@@ -105,5 +109,5 @@ if __name__ == '__main__':
     r = rospy.Rate(0.2)
     while not rospy.is_shutdown():
         print("publishing....")
-        test.publishMap()
+        test._map.publishMap()
         r.sleep()
