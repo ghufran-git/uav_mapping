@@ -61,7 +61,11 @@ class UavMapper:
         self.robot_pose.pose.position.x = (pose_recieved.pose.pose.position.x - self.map_origin_x) * 1/self.map_resolution
         self.robot_pose.pose.position.y = (pose_recieved.pose.pose.position.y - self.map_origin_y) * 1/self.map_resolution
         self.robot_pose.pose.position.z = pose_recieved.pose.pose.position.z 
-        # print(self.robot_pose.pose.position.x, self.robot_pose.pose.position.y, self.robot_pose.pose.position.z)
+        print(self.robot_pose.pose.position.x, self.robot_pose.pose.position.y, self.robot_pose.pose.position.z)
+        if (self.robot_pose.pose.position.x <= 0 or self.robot_pose.pose.position.y <= 0 ):
+            self.robot_pose.pose.position.x = 0
+            self.robot_pose.pose.position.y = 0
+            rospy.logerr("Out of Bounds of the map")
         self.mapUpdate()
 
 
@@ -74,7 +78,16 @@ class UavMapper:
         """ Returns a nav_msgs/OccupancyGrid representation of the map (updated if any changes occured). """
 
         self.calculatePixel()
-        self.grid[int(round(self.robot_pose.pose.position.x))-int(round(self.pixel/2)):int(round(self.robot_pose.pose.position.x))+int(round(self.pixel/2)),int(round(self.robot_pose.pose.position.y))-int(round(self.pixel/2)):int(round(self.robot_pose.pose.position.y))+int(round(self.pixel/2))] = 1
+        a = int(round(self.robot_pose.pose.position.x))-int(round(self.pixel/2))
+        if(a<=0):
+            a=0
+        b = int(round(self.robot_pose.pose.position.x))+int(round(self.pixel/2))
+        c = int(round(self.robot_pose.pose.position.y))-int(round(self.pixel/2))
+        if(c<=0):
+            c=0
+        d = int(round(self.robot_pose.pose.position.y))+int(round(self.pixel/2))
+        
+        self.grid[a:b,c:d] = 1
         flat_grid = self.grid.reshape((self.grid.size,))
         self.map.data = list(np.round(flat_grid))
 
