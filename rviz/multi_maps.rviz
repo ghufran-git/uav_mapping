@@ -37,7 +37,7 @@ Visualization Manager:
       Cell Size: 1
       Class: rviz/Grid
       Color: 160; 160; 164
-      Enabled: false
+      Enabled: true
       Line Style:
         Line Width: 0.029999999329447746
         Value: Lines
@@ -50,17 +50,17 @@ Visualization Manager:
       Plane: XY
       Plane Cell Count: 10
       Reference Frame: <Fixed Frame>
-      Value: false
+      Value: true
     - Alpha: 0.699999988079071
       Class: rviz/Map
       Color Scheme: map
       Draw Behind: false
-      Enabled: true
+      Enabled: false
       Name: Map
       Topic: /uav0/map
       Unreliable: false
       Use Timestamp: false
-      Value: true
+      Value: false
     - Alpha: 0.699999988079071
       Class: rviz/Map
       Color Scheme: map
@@ -75,21 +75,105 @@ Visualization Manager:
       Class: rviz/Map
       Color Scheme: map
       Draw Behind: false
-      Enabled: true
+      Enabled: false
       Name: Map
       Topic: /uav2/map
       Unreliable: false
       Use Timestamp: false
-      Value: true
+      Value: false
     - Alpha: 0.699999988079071
       Class: rviz/Map
       Color Scheme: map
       Draw Behind: false
-      Enabled: true
+      Enabled: false
       Name: Map
       Topic: /map_merge/map
       Unreliable: false
       Use Timestamp: false
+      Value: false
+    - Class: rviz/TF
+      Enabled: true
+      Frame Timeout: 15
+      Frames:
+        All Enabled: false
+        base_footprint:
+          Value: false
+        base_link:
+          Value: false
+        base_scan:
+          Value: false
+        caster_back_link:
+          Value: false
+        imu_link:
+          Value: false
+        map:
+          Value: false
+        uav0/base_link:
+          Value: true
+        uav0/base_link_frd:
+          Value: false
+        uav0/map:
+          Value: false
+        uav0/map_ned:
+          Value: false
+        uav0/odom:
+          Value: false
+        uav0/odom_ned:
+          Value: false
+        uav1/base_link:
+          Value: false
+        uav1/base_link_frd:
+          Value: true
+        uav1/map:
+          Value: false
+        uav1/map_ned:
+          Value: false
+        uav1/odom:
+          Value: false
+        uav1/odom_ned:
+          Value: false
+        uav2/base_link:
+          Value: true
+        uav2/base_link_frd:
+          Value: false
+        uav2/map:
+          Value: false
+        uav2/map_ned:
+          Value: false
+        uav2/odom:
+          Value: false
+        uav2/odom_ned:
+          Value: false
+        world:
+          Value: false
+      Marker Scale: 50
+      Name: TF
+      Show Arrows: true
+      Show Axes: true
+      Show Names: true
+      Tree:
+        world:
+          map:
+            {}
+          uav0/map:
+            uav0/base_link:
+              uav0/base_link_frd:
+                {}
+            uav0/map_ned:
+              {}
+          uav1/map:
+            uav1/base_link:
+              uav1/base_link_frd:
+                {}
+            uav1/map_ned:
+              {}
+          uav2/map:
+            uav2/base_link:
+              uav2/base_link_frd:
+                {}
+            uav2/map_ned:
+              {}
+      Update Interval: 0
       Value: true
   Enabled: true
   Global Options:
@@ -119,25 +203,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 175.81973266601562
+      Distance: 44.04164123535156
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 4.167708873748779
-        Y: -7.003061771392822
-        Z: -16.955699920654297
+        X: -3.7931764125823975
+        Y: 6.654664039611816
+        Z: 107.19062042236328
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: -1.5547963380813599
+      Pitch: 1.5697963237762451
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 0.0020174989476799965
+      Yaw: 3.1851956844329834
     Saved: ~
 Window Geometry:
   Displays:

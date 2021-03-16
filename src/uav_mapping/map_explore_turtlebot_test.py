@@ -33,7 +33,7 @@ class UavMapper:
         # self.initial_y = rospy.get_param(ns + "/y")
         # self.initial_z = rospy.get_param(ns + "/z")
         # self.initial_Y = rospy.get_param(ns + "/Y")
-
+        print("***********TURTLEBOT TEST***************")
         self.initial_x = 0
         self.initial_y = 0
         self.initial_z = 0
@@ -42,7 +42,7 @@ class UavMapper:
         self.initial_Y = 0
         self.robot_pose = PoseStamped()
         self.position_sub = rospy.Subscriber(
-            "mavros/local_position/odom", Odometry, self.callback_robot_pose, queue_size=1)
+            "/odom", Odometry, self.callback_robot_pose, queue_size=1)
         self._map = Map()
         
         self.robot_pose.pose.position.x=(self.initial_x - self._map.map_origin_x) * 1/self._map.map_resolution
@@ -145,7 +145,7 @@ class Map:
         self.map.info.width = self.map_size_x
         self.map.info.height = self.map_size_y
         self.map_pub = rospy.Publisher("map", OccupancyGrid, queue_size=1, latch=True)
-        self.pixel = 50
+        self.pixel =4
         self.grid = np.ones((self.map.info.height, self.map.info.width))
         self.grid = np.dot(self.grid, -1)
         flat_grid = self.grid.reshape((self.grid.size,))

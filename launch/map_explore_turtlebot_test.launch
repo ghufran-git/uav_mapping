@@ -5,13 +5,20 @@
             file="$(find uav_mapping)/cfg/map_config.yaml" />
     </group>
     <node
-        name="map_explore"
-        type="map_explore.py"
+        name="map_explore_turtlebot_test"
+        type="map_explore_turtlebot_test.py"
         pkg="uav_mapping"
         output="screen"/>
+    
     <node 
         name="rviz" 
         type="rviz" 
         pkg="rviz" 
-        args="-d $(find uav_mapping)/rviz/map.rviz" />
+        args="-d $(find uav_mapping)/rviz/turtlebot3_single_mapping.rviz" />
+    
+    <node pkg="tf"
+        type="static_transform_publisher"
+        name="map_broadcaster"
+        args="0 0 0 0 0 0 map odom 100" />
+
 </launch>
