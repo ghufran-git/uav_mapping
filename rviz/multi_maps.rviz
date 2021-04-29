@@ -5,6 +5,7 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /Global Options1
+        - /TF1/Frames1
       Splitter Ratio: 0.5
     Tree Height: 535
   - Class: rviz/Selection
@@ -55,12 +56,12 @@ Visualization Manager:
       Class: rviz/Map
       Color Scheme: map
       Draw Behind: false
-      Enabled: false
+      Enabled: true
       Name: Map
       Topic: /uav0/map
       Unreliable: false
       Use Timestamp: false
-      Value: false
+      Value: true
     - Alpha: 0.699999988079071
       Class: rviz/Map
       Color Scheme: map
@@ -75,43 +76,49 @@ Visualization Manager:
       Class: rviz/Map
       Color Scheme: map
       Draw Behind: false
-      Enabled: false
+      Enabled: true
       Name: Map
       Topic: /uav2/map
       Unreliable: false
       Use Timestamp: false
-      Value: false
+      Value: true
     - Alpha: 0.699999988079071
       Class: rviz/Map
       Color Scheme: map
       Draw Behind: false
-      Enabled: false
+      Enabled: true
       Name: Map
       Topic: /map_merge/map
       Unreliable: false
       Use Timestamp: false
-      Value: false
+      Value: true
     - Class: rviz/TF
       Enabled: true
-      Frame Timeout: 15
+      Frame Timeout: 1500
       Frames:
         All Enabled: false
-        base_footprint:
-          Value: false
         base_link:
-          Value: false
-        base_scan:
-          Value: false
-        caster_back_link:
-          Value: false
+          Value: true
+        base_link_inertia:
+          Value: true
         imu_link:
-          Value: false
+          Value: true
         map:
           Value: false
-        uav0/base_link:
+        rotor_0:
           Value: true
+        rotor_1:
+          Value: true
+        rotor_2:
+          Value: true
+        rotor_3:
+          Value: true
+        uav0/base_link:
+          Value: false
         uav0/base_link_frd:
           Value: false
+        uav0/base_link_offset:
+          Value: true
         uav0/map:
           Value: false
         uav0/map_ned:
@@ -123,6 +130,8 @@ Visualization Manager:
         uav1/base_link:
           Value: false
         uav1/base_link_frd:
+          Value: false
+        uav1/base_link_offset:
           Value: true
         uav1/map:
           Value: false
@@ -133,9 +142,11 @@ Visualization Manager:
         uav1/odom_ned:
           Value: false
         uav2/base_link:
-          Value: true
+          Value: false
         uav2/base_link_frd:
           Value: false
+        uav2/base_link_offset:
+          Value: true
         uav2/map:
           Value: false
         uav2/map_ned:
@@ -146,7 +157,7 @@ Visualization Manager:
           Value: false
         world:
           Value: false
-      Marker Scale: 50
+      Marker Scale: 5
       Name: TF
       Show Arrows: true
       Show Axes: true
@@ -154,7 +165,12 @@ Visualization Manager:
       Tree:
         world:
           map:
-            {}
+            uav0/base_link_offset:
+              {}
+            uav1/base_link_offset:
+              {}
+            uav2/base_link_offset:
+              {}
           uav0/map:
             uav0/base_link:
               uav0/base_link_frd:
@@ -175,11 +191,43 @@ Visualization Manager:
               {}
       Update Interval: 0
       Value: true
+    - Class: rviz/Marker
+      Enabled: true
+      Marker Topic: /explore/uav2/exploration_boundary
+      Name: Marker
+      Namespaces:
+        "": true
+      Queue Size: 100
+      Value: true
+    - Class: rviz/MarkerArray
+      Enabled: true
+      Marker Topic: /explore/uav0/frontiers
+      Name: MarkerArray
+      Namespaces:
+        {}
+      Queue Size: 100
+      Value: true
+    - Class: rviz/MarkerArray
+      Enabled: true
+      Marker Topic: /explore/uav1/frontiers
+      Name: MarkerArray
+      Namespaces:
+        {}
+      Queue Size: 100
+      Value: true
+    - Class: rviz/MarkerArray
+      Enabled: true
+      Marker Topic: /explore/uav2/frontiers
+      Name: MarkerArray
+      Namespaces:
+        {}
+      Queue Size: 100
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
     Default Light: true
-    Fixed Frame: world
+    Fixed Frame: map
     Frame Rate: 30
   Name: root
   Tools:
@@ -203,16 +251,16 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 44.04164123535156
+      Distance: 26.725601196289062
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -3.7931764125823975
-        Y: 6.654664039611816
-        Z: 107.19062042236328
+        X: 2.9991278648376465
+        Y: -3.9270713329315186
+        Z: 12.628787994384766
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
@@ -221,7 +269,7 @@ Visualization Manager:
       Pitch: 1.5697963237762451
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 3.1851956844329834
+      Yaw: 4.681550025939941
     Saved: ~
 Window Geometry:
   Displays:

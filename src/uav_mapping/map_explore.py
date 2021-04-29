@@ -12,11 +12,14 @@ Author: Ghufran Ullah
 Email: contact.ghufranullah@gmail.com
 """
 import rospy
+import geometry_msgs.msg
 from nav_msgs.msg import OccupancyGrid, Odometry
 from geometry_msgs.msg import Pose, PoseStamped, Point, Quaternion
 import numpy as np
 import math
 from geographiclib.geodesic import Geodesic
+import tf_conversions
+import tf2_ros
 
 class UavMapper:
     """ 
@@ -28,21 +31,22 @@ class UavMapper:
     def __init__(self):
         """ Construct an empty occupancy grid. Subscriber and publisher."""
 
-        ns = rospy.get_namespace()
-        # self.initial_x = rospy.get_param(ns + "/x")
-        # self.initial_y = rospy.get_param(ns + "/y")
-        # self.initial_z = rospy.get_param(ns + "/z")
-        # self.initial_Y = rospy.get_param(ns + "/Y")
+        self.ns = rospy.get_namespace()
+        self.initial_x = rospy.get_param(self.ns + "/x")
+        self.initial_y = rospy.get_param(self.ns + "/y")
+        self.initial_z = rospy.get_param(self.ns + "/z")
+        self.initial_R = rospy.get_param(self.ns + "/R")
+        self.initial_P = rospy.get_param(self.ns + "/P")
+        self.initial_Y = rospy.get_param(self.ns + "/Y")
 
-        self.initial_x = 0
-        self.initial_y = 0
-        self.initial_z = 0
-        self.initial_R = 0
-        self.initial_P = 0
-        self.initial_Y = 0
+        # self.initial_x = 0
+        # self.initial_y = 0
+        # self.initial_z = 0
+        # self.initial_R = 0
+        # self.initial_P = 0
+        # self.initial_Y = 0
         self.robot_pose = PoseStamped()
-        self.position_sub = rospy.Subscriber(
-            "mavros/local_position/odom", Odometry, self.callback_robot_pose, queue_size=1)
+  
         self._map = Map()
         
         self.robot_pose.pose.position.x=(self.initial_x - self._map.map_origin_x) * 1/self._map.map_resolution
@@ -53,8 +57,18 @@ class UavMapper:
         self.robot_pitch=math.radians(self.initial_P)
         self.robot_yaw=math.radians(self.initial_Y)
         
+        self.transform_broadcaster = tf2_ros.TransformBroadcaster()
+        self.robot_transformation= geometry_msgs.msg.TransformStamped()
+        self.robot_transformation.header.stamp = rospy.Time.now()
+        self.robot_transformation.header.frame_id = "map"
+        self.robot_transformation.child_frame_id = str(self.ns) + "base_link_offset"
+        print(self.robot_transformation.header.frame_id, self.robot_transformation.child_frame_id)
+
         self.initial_transform= self.transformation()
         self.new_transform=np.identity(4)
+
+        self.position_sub = rospy.Subscriber(
+            "mavros/local_position/odom", Odometry, self.callback_robot_pose, queue_size=1)
 
     def callback_robot_pose(self, pose_recieved):
         """ Callback for /mavros/local_position/odom """
@@ -62,6 +76,7 @@ class UavMapper:
         self.robot_pose.pose.position.x = pose_recieved.pose.pose.position.x
         self.robot_pose.pose.position.y = pose_recieved.pose.pose.position.y 
         self.robot_pose.pose.position.z = pose_recieved.pose.pose.position.z
+        self.send_transforms()
         # print(self.robot_pose.pose.position.x, self.robot_pose.pose.position.y, self.robot_pose.pose.position.z)
         # print(pose_recieved.pose.pose.position.x,pose_recieved.pose.pose.position.y,pose_recieved.pose.pose.position.z)
         # if (self.robot_pose.pose.position.x <= 0 or self.robot_pose.pose.position.y <= 0):
@@ -77,6 +92,8 @@ class UavMapper:
         self.robot_pose.pose.position.x=test[0][3] 
         self.robot_pose.pose.position.y=test[1][3] 
         self.robot_pose.pose.position.z=test[2][3] 
+        # print(self.robot_pose.pose.position.x, self.robot_pose.pose.position.y, self.robot_pose.pose.position.z)
+        
         self._map.mapUpdate(self.robot_pose.pose.position.x, self.robot_pose.pose.position.y, self.robot_pose.pose.position.z)
 
     def euler_from_quaternion(self, x, y, z, w):
@@ -116,6 +133,18 @@ class UavMapper:
         z = self.robot_pose.pose.position.z
         transformation=np.array([[a,b,c,x],[d,e,f,y],[g,h,i,z],[0,0,0,1]])
         return transformation
+    
+    def send_transforms(self):
+        self.robot_transformation.transform.translation.x = self.robot_pose.pose.position.x + self.initial_x
+        self.robot_transformation.transform.translation.y = self.robot_pose.pose.position.y + self.initial_y
+        self.robot_transformation.transform.translation.z = self.robot_pose.pose.position.z + self.initial_z
+
+        self.robot_transformation.transform.rotation.x = 0
+        self.robot_transformation.transform.rotation.y = 0
+        self.robot_transformation.transform.rotation.z = 0
+        self.robot_transformation.transform.rotation.w = 1
+        self.transform_broadcaster.sendTransform(self.robot_transformation)
+
 
 class Map:
     """
@@ -145,7 +174,7 @@ class Map:
         self.map.info.width = self.map_size_x
         self.map.info.height = self.map_size_y
         self.map_pub = rospy.Publisher("map", OccupancyGrid, queue_size=1, latch=True)
-        self.pixel = 50
+        self.pixel = 0
         self.grid = np.ones((self.map.info.height, self.map.info.width))
         self.grid = np.dot(self.grid, -1)
         flat_grid = self.grid.reshape((self.grid.size,))
@@ -160,7 +189,7 @@ class Map:
     def mapUpdate(self, pos_x , pos_y, pos_z):
         """ Returns a nav_msgs/OccupancyGrid representation of the map (updated if any changes occured). """
 
-        # self.calculatePixel(pos_z)
+        self.calculatePixel(pos_z)
         a = int(round(pos_y)) - int(round(self.pixel/2))
         if(a <= 0):
             a = 0
@@ -226,6 +255,6 @@ if __name__ == '__main__':
     test = UavMapper()
     r = rospy.Rate(0.2)
     while not rospy.is_shutdown():
-        print("publishing....")
+        print( str(test.ns) + "  Publishing....")
         test._map.publishMap()
         r.sleep()
