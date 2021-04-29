@@ -13,11 +13,6 @@
             type="map_explore.py"
             pkg="uav_mapping"
             output="screen"/>
-        <node 
-            name="rviz" 
-            type="rviz" 
-            pkg="rviz" 
-            args="-d $(find uav_mapping)/rviz/map-uav0.rviz" />
     </group>
 
     <group ns="uav1">
@@ -27,11 +22,6 @@
             type="map_explore.py"
             pkg="uav_mapping"
             output="screen"/>
-        <node 
-            name="rviz" 
-            type="rviz" 
-            pkg="rviz" 
-            args="-d $(find uav_mapping)/rviz/map-uav1.rviz" />
     </group>
 
     <group ns="uav2">
@@ -41,11 +31,10 @@
             type="map_explore.py"
             pkg="uav_mapping"
             output="screen"/>
-        <node 
-            name="rviz" 
-            type="rviz" 
-            pkg="rviz" 
-            args="-d $(find uav_mapping)/rviz/map-uav2.rviz" />
     </group>
-
+    <node 
+        name="rviz" 
+        type="rviz" 
+        pkg="rviz" 
+        args="-d $(find uav_mapping)/rviz/multi_maps.rviz" />
 </launch>
