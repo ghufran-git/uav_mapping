@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<launch>
+
+<include file="$(find px4)/launch/multi_uav_mavros_sitl.launch" />
+<include file="$(find uav_mapping)/launch/multi_uav_map_explore.launch" />
+<include file="$(find multirobot_map_merge)/launch/map_merge.launch" />
+<node pkg="swarm_actions" type="swarm_actions" name="swarm_actions"/>
+</launch>
