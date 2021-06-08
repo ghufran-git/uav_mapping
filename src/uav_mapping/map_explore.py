@@ -17,7 +17,7 @@ from nav_msgs.msg import OccupancyGrid, Odometry
 from geometry_msgs.msg import Pose, PoseStamped, Point, Quaternion
 import numpy as np
 import math
-from geographiclib.geodesic import Geodesic
+# from geographiclib.geodesic import Geodesic
 import tf_conversions
 import tf2_ros
 
@@ -60,7 +60,7 @@ class UavMapper:
         self.transform_broadcaster = tf2_ros.TransformBroadcaster()
         self.robot_transformation= geometry_msgs.msg.TransformStamped()
         self.robot_transformation.header.stamp = rospy.Time.now()
-        self.robot_transformation.header.frame_id = "map"
+        self.robot_transformation.header.frame_id = str(self.ns) + "map"
         self.robot_transformation.child_frame_id = str(self.ns) + "base_link_offset"
         print(self.robot_transformation.header.frame_id, self.robot_transformation.child_frame_id)
 
@@ -135,6 +135,7 @@ class UavMapper:
         return transformation
     
     def send_transforms(self):
+        self.robot_transformation.header.stamp = rospy.Time.now()
         self.robot_transformation.transform.translation.x = self.robot_pose.pose.position.x + self.initial_x
         self.robot_transformation.transform.translation.y = self.robot_pose.pose.position.y + self.initial_y
         self.robot_transformation.transform.translation.z = self.robot_pose.pose.position.z + self.initial_z
@@ -179,7 +180,7 @@ class Map:
         self.grid = np.dot(self.grid, -1)
         flat_grid = self.grid.reshape((self.grid.size,))
         self.map.data = list(np.round(flat_grid))
-        self.camera_fov = 40
+        self.camera_fov = 120
 
     def publishMap(self):
         """ Publishes the map  """
@@ -199,7 +200,7 @@ class Map:
             c = 0
         d = int(round(pos_x)) + int(round(self.pixel/2))
 
-        self.grid[a:b, c:d] = 1
+        self.grid[a:b, c:d] = 0
         flat_grid = self.grid.reshape((self.grid.size,))
         self.map.data = list(np.round(flat_grid))
 
@@ -212,48 +213,48 @@ class Map:
             math.radians(self.camera_fov/2)))**2) - pos_z**2)
         self.pixel = (2*radius)/self.map_resolution
 
-    def locateGps(self, pos_x, pos_y):
-        spot= [pos_x, pox_y]
-        origin = [self.map_origin_x,self.map_origin_x]
-        distancex = (spot[0] - origin[0])* self.map_resolution  # convert to meters
-        distancey = (spot[1] - origin[1])* self.map_resolution  # convert to meters
-        origin_gps = [33.636864, 72.989602]
+    # def locateGps(self, pos_x, pos_y):
+    #     spot= [pos_x, pox_y]
+    #     origin = [self.map_origin_x,self.map_origin_x]
+    #     distancex = (spot[0] - origin[0])* self.map_resolution  # convert to meters
+    #     distancey = (spot[1] - origin[1])* self.map_resolution  # convert to meters
+    #     origin_gps = [33.636864, 72.989602]
 
-        print("origin GPS : " + str(origin_gps))
+    #     print("origin GPS : " + str(origin_gps))
 
-        distance = math.sqrt((distancex**2) + (distancey**2)) # Distance in meters (m)
-        print("distance from origin : " + str(distance) + " m ")
+    #     distance = math.sqrt((distancex**2) + (distancey**2)) # Distance in meters (m)
+    #     print("distance from origin : " + str(distance) + " m ")
 
-        if (spot[0] > origin[0] and spot[1] > origin[1]):
-            azimuth = math.degrees(math.atan(abs((spot[1]-origin[1])/(spot[0]-origin[0])))) #Q1
-        elif (spot[0] < origin[0] and spot[1] >= origin[1]):
-            azimuth = 270 + math.degrees(math.atan(abs((spot[1]-origin[1])/(spot[0]-origin[0])))) #Q2
-        elif (spot[0] < origin[0] and spot[1] < origin[1]):
-            azimuth = 270 - math.degrees(math.atan(abs((spot[1]-origin[1])/(spot[0]-origin[0])))) #Q3
-        elif (spot[0] > origin[0] and spot[1] <= origin[1]):
-            azimuth = 90 + math.degrees(math.atan(abs((spot[1]-origin[1])/(spot[0]-origin[0])))) #Q4
-        elif (spot[0] == origin[0] and spot[1] >= origin[1]):
-            azimuth = 0
-        elif (spot[0] == origin[0] and spot[1] < origin[1]):
-            azimuth = 180
+    #     if (spot[0] > origin[0] and spot[1] > origin[1]):
+    #         azimuth = math.degrees(math.atan(abs((spot[1]-origin[1])/(spot[0]-origin[0])))) #Q1
+    #     elif (spot[0] < origin[0] and spot[1] >= origin[1]):
+    #         azimuth = 270 + math.degrees(math.atan(abs((spot[1]-origin[1])/(spot[0]-origin[0])))) #Q2
+    #     elif (spot[0] < origin[0] and spot[1] < origin[1]):
+    #         azimuth = 270 - math.degrees(math.atan(abs((spot[1]-origin[1])/(spot[0]-origin[0])))) #Q3
+    #     elif (spot[0] > origin[0] and spot[1] <= origin[1]):
+    #         azimuth = 90 + math.degrees(math.atan(abs((spot[1]-origin[1])/(spot[0]-origin[0])))) #Q4
+    #     elif (spot[0] == origin[0] and spot[1] >= origin[1]):
+    #         azimuth = 0
+    #     elif (spot[0] == origin[0] and spot[1] < origin[1]):
+    #         azimuth = 180
         
-        print("azimuth =" + str(azimuth))
+    #     print("azimuth =" + str(azimuth))
 
-        #Define the ellipsoid
-        geod = Geodesic.WGS84
-        azi1= azimuth
+    #     #Define the ellipsoid
+    #     geod = Geodesic.WGS84
+    #     azi1= azimuth
 
-        #Solve the Direct problem
-        dir = geod.Direct(origin_gps[0],origin_gps[1],azi1,distance)
-        goal_gps = (dir['lat2'],dir['lon2'])
-        print('Goal GPS = ' + str(goal_gps))
-        return goal_gps
+    #     #Solve the Direct problem
+    #     dir = geod.Direct(origin_gps[0],origin_gps[1],azi1,distance)
+    #     goal_gps = (dir['lat2'],dir['lon2'])
+    #     print('Goal GPS = ' + str(goal_gps))
+    #     return goal_gps
 
 
 if __name__ == '__main__':
     rospy.init_node("Mapper", anonymous=True)
     test = UavMapper()
-    r = rospy.Rate(0.2)
+    r = rospy.Rate(3)
     while not rospy.is_shutdown():
         print( str(test.ns) + "  Publishing....")
         test._map.publishMap()
